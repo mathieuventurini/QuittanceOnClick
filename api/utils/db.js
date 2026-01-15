@@ -1,4 +1,5 @@
 import { kv } from '@vercel/kv';
+import Redis from 'ioredis';
 
 // Default data structure
 const DEFAULT_DB = {
@@ -6,29 +7,63 @@ const DEFAULT_DB = {
     automationStatus: { skipNext: false }
 };
 
+let redisClient = null;
+const getRedisClient = () => {
+    if (!redisClient && process.env.REDIS_URL) {
+        redisClient = new Redis(process.env.REDIS_URL);
+    }
+    return redisClient;
+};
+
 export const getDb = async () => {
-    // Safety check: Return default if KV is not configured (prevents crash)
-    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
-        console.warn('⚠️ Vercel KV is not configured. Falling back to default in-memory DB (data will be lost on restart).');
-        return DEFAULT_DB;
+    // 1. Try Vercel KV (Rest API)
+    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+        try {
+            const data = await kv.get('db');
+            return data || DEFAULT_DB;
+        } catch (error) {
+            console.error('❌ Failed to connect to Vercel KV:', error);
+        }
     }
 
-    try {
-        const data = await kv.get('db');
-        return data || DEFAULT_DB;
-    } catch (error) {
-        console.error('❌ Failed to connect to Vercel KV:', error);
-        // Fallback to avoid 500 error, though persistence will fail
-        return DEFAULT_DB;
+    // 2. Try Standard Redis (ioredis) using REDIS_URL
+    if (process.env.REDIS_URL) {
+        try {
+            const client = getRedisClient();
+            const data = await client.get('db');
+            // Redis stores strings, need to parse
+            return data ? JSON.parse(data) : DEFAULT_DB;
+        } catch (error) {
+            console.error('❌ Failed to connect to Redis URL:', error);
+        }
     }
+
+    // 3. Fallback (No Persistence)
+    console.warn('⚠️ No Database configured. Falling back to in-memory DB.');
+    return DEFAULT_DB;
 };
 
 export const saveDb = async (data) => {
-    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) return;
-    try {
-        await kv.set('db', data);
-    } catch (error) {
-        console.error('❌ Failed to save to Vercel KV:', error);
+    // 1. Try Vercel KV
+    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+        try {
+            await kv.set('db', data);
+            return;
+        } catch (error) {
+            console.error('❌ Failed to save to Vercel KV:', error);
+        }
+    }
+
+    // 2. Try Standard Redis
+    if (process.env.REDIS_URL) {
+        try {
+            const client = getRedisClient();
+            // Redis needs stringified JSON
+            await client.set('db', JSON.stringify(data));
+            return;
+        } catch (error) {
+            console.error('❌ Failed to save to Redis URL:', error);
+        }
     }
 };
 
