@@ -17,6 +17,7 @@ export const generateReceiptBuffer = (data) => {
         doc.text(`Période : ${data.period}`);
         doc.moveDown();
 
+        console.log('👤 OWNER_NAME:', process.env.OWNER_NAME);
         doc.text(`Propriétaire : ${process.env.OWNER_NAME || 'Mathieu Venturini'}`);
         doc.text(`Locataire : ${data.tenantName}`);
         doc.moveDown();
