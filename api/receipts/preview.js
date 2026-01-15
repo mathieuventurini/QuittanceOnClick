@@ -1,12 +1,18 @@
 import { generateReceiptBuffer } from '../utils/pdf.js';
 
-export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+import { isAuthenticated } from '../utils/auth.js';
+
+export default async function handler(request, response) {
+    if (!isAuthenticated(request)) {
+        return response.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (request.method !== 'POST') {
+        return response.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        const { tenantName, address, amount, period } = req.body;
+        const { tenantName, address, amount, period } = request.body;
 
         const buffer = await generateReceiptBuffer({
             date: new Date().toLocaleDateString('fr-FR'),
