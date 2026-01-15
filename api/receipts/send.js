@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 import { getDb, saveDb } from '../utils/db.js';
 import { generateReceiptBuffer } from '../utils/pdf.js';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -11,6 +11,11 @@ export default async function handler(req, res) {
 
     try {
         const { email, tenantName, address, amount, period } = req.body;
+
+        if (!process.env.RESEND_API_KEY) {
+            throw new Error('RESEND_API_KEY is missing in environment variables');
+        }
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
         // 1. Generate PDF
         const pdfBuffer = await generateReceiptBuffer({
