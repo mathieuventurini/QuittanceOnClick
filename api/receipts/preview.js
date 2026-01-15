@@ -22,9 +22,9 @@ export default async function handler(request, response) {
             amount
         });
 
-        res.setHeader('Content-Type', 'application/pdf');
-        res.send(buffer);
+        response.setHeader('Content-Type', 'application/pdf');
+        response.send(buffer);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        response.status(500).json({ error: err.message });
     }
 }

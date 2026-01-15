@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
 const PRESETS = {
-    address: "26 rue des Rigoles, 75020 Paris",
-    amount: "700",
-    tenantName: "Mr BOULANGER",
-    email: "boulanger.h@gmail.com"
+    address: "",
+    amount: "",
+    tenantName: "",
+    email: ""
 };
 
 export default function ManualSend({ onReceiptSent }) {
