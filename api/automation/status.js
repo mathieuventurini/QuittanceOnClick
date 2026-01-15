@@ -1,4 +1,4 @@
-import { getDb, saveDb } from './utils/db.js';
+import { getDb, saveDb } from '../utils/db.js';
 
 export default async function handler(req, res) {
     try {
