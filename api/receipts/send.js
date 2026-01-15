@@ -69,10 +69,10 @@ export default async function handler(request, response) {
         db.receipts.unshift(newReceipt);
         await saveDb(db);
 
-        res.status(200).json({ success: true, receipt: newReceipt });
+        response.status(200).json({ success: true, receipt: newReceipt });
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.message });
+        response.status(500).json({ error: err.message });
     }
 }
