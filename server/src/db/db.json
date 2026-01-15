@@ -1,0 +1,130 @@
+{
+  "receipts": [
+    {
+      "id": "1768456380651",
+      "date": "2026-01-15T05:53:00.651Z",
+      "tenantName": "",
+      "period": "Janvier 2026",
+      "amount": "",
+      "status": "Sent",
+      "emailId": "mock-id-1768456380651"
+    },
+    {
+      "id": "1768456368782",
+      "date": "2026-01-15T05:52:48.782Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "Janvier 2026",
+      "amount": "710",
+      "status": "Sent",
+      "emailId": "mock-id-1768456368782"
+    },
+    {
+      "id": "1768456360582",
+      "date": "2026-01-15T05:52:40.582Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "Janvier 2026",
+      "amount": "",
+      "status": "Sent",
+      "emailId": "mock-id-1768456360581"
+    },
+    {
+      "id": "1768456360002",
+      "date": "2026-01-15T05:52:40.002Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "Janvier 2026",
+      "amount": "",
+      "status": "Sent",
+      "emailId": "mock-id-1768456360002"
+    },
+    {
+      "id": "1768456358402",
+      "date": "2026-01-15T05:52:38.402Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "Janvier 2026",
+      "amount": "",
+      "status": "Sent",
+      "emailId": "mock-id-1768456358402"
+    },
+    {
+      "id": "1768455052307",
+      "date": "2026-01-15T05:30:52.307Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "janvier 2026",
+      "amount": "55",
+      "status": "Sent",
+      "emailId": "mock-id-1768455052306"
+    },
+    {
+      "id": "1768455049957",
+      "date": "2026-01-15T05:30:49.957Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "janvier 2026",
+      "amount": "55",
+      "status": "Sent",
+      "emailId": "mock-id-1768455049957"
+    },
+    {
+      "id": "1768455049507",
+      "date": "2026-01-15T05:30:49.507Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "janvier 2026",
+      "amount": "55",
+      "status": "Sent",
+      "emailId": "mock-id-1768455049507"
+    },
+    {
+      "id": "1768455048623",
+      "date": "2026-01-15T05:30:48.623Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "janvier 2026",
+      "amount": "55",
+      "status": "Sent",
+      "emailId": "mock-id-1768455048623"
+    },
+    {
+      "id": "1768455046541",
+      "date": "2026-01-15T05:30:46.541Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "janvier 2026",
+      "amount": "55",
+      "status": "Sent",
+      "emailId": "mock-id-1768455046541"
+    },
+    {
+      "id": "1768455024123",
+      "date": "2026-01-15T05:30:24.123Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "janvier 2026",
+      "amount": "55",
+      "status": "Sent",
+      "emailId": "mock-id-1768455024123"
+    },
+    {
+      "id": "1768455023675",
+      "date": "2026-01-15T05:30:23.675Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "janvier 2026",
+      "amount": "55",
+      "status": "Sent",
+      "emailId": "mock-id-1768455023675"
+    },
+    {
+      "id": "1768455021262",
+      "date": "2026-01-15T05:30:21.262Z",
+      "tenantName": "Mathieu Venturini",
+      "period": "janvier 2026",
+      "amount": "55",
+      "status": "Sent",
+      "emailId": "mock-id-1768455021260"
+    }
+  ],
+  "settings": {
+    "tenantName": "",
+    "email": "mathieu.venturini@gmail.com",
+    "address": "10 Rue de la Pierre, 37100 Tours",
+    "amount": ""
+  },
+  "automationStatus": {
+    "skipNext": false
+  }
+}

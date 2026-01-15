@@ -1,0 +1,17 @@
+# System
+.DS_Store
+
+# Dependencies
+node_modules
+
+# Environment Variables (Private)
+.env
+server/.env
+*.env.local
+
+# Build
+dist
+build
+
+# Vercel
+.vercel

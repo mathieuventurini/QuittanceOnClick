@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: Inter, system-ui, sans-serif;
+
+  --color-warm-bg: #F8FAFC;
+  /* Slate 50 */
+  --color-warm-surface: #FFFFFF;
+  /* White */
+  --color-warm-primary: #6366F1;
+  /* Indigo 500 */
+  --color-warm-secondary: #4F46E5;
+  /* Indigo 600 */
+  --color-warm-text: #1E293B;
+  /* Slate 800 */
+  --color-warm-muted: #64748B;
+  /* Slate 500 */
+  --color-warm-border: #E2E8F0;
+  /* Slate 200 */
+}
+
+body {
+  @apply bg-warm-bg text-warm-text antialiased;
+}
