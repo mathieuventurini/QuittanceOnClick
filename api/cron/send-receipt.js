@@ -13,6 +13,7 @@ export default async function handler(request, response) {
         if (db.automationStatus && db.automationStatus.skipNext) {
             db.automationStatus.skipNext = false; // Reset for next month
             await saveDb(db);
+            console.log('⏭️ Automation skipped by user request.');
             return response.status(200).json({ status: 'Skipped', message: 'Automation was skipped by user.' });
         }
 
@@ -34,6 +35,7 @@ export default async function handler(request, response) {
         );
 
         if (alreadySent) {
+            console.log(`⏭️ Receipt for ${capitalizedPeriod} already sent. Skipping.`);
             return response.status(200).json({ status: 'Skipped', message: 'Receipt already sent for this period.' });
         }
 
