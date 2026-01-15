@@ -6,6 +6,6 @@
         "build": "cd client && npm install && npm run build && cd .. && rm -rf dist && mv client/dist dist"
     },
     "engines": {
-        "node": "18.x"
+        "node": "22.x"
     }
 }
