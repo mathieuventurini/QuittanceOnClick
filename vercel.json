@@ -2,11 +2,7 @@
     "crons": [
         {
             "path": "/api/cron/send-receipt",
-            "schedule": "58 13 * * *"
-        },
-        {
-            "path": "/api/cron/send-receipt",
-            "schedule": "5 14 * * *"
+            "schedule": "*/30 * * * *"
         }
     ],
     "rewrites": [
