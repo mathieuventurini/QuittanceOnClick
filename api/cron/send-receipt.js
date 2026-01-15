@@ -19,7 +19,13 @@ export default async function handler(request, response) {
 
         // 2. Validate Settings
         if (!settings.email || !settings.tenantName) {
-            return response.status(500).json({ error: 'Missing environment variables for tenant settings.' });
+            return response.status(500).json({
+                error: 'Missing environment variables for tenant settings.',
+                debug: {
+                    email: settings.email ? 'Set' : 'Missing',
+                    tenantName: settings.tenantName ? 'Set' : 'Missing'
+                }
+            });
         }
 
         // 3. Check for duplicates (Anti-Double-Send)
@@ -35,10 +41,10 @@ export default async function handler(request, response) {
         );
 
         // TEMPORARY: Disabled for testing loop
-        // if (alreadySent) {
-        //     console.log(`⏭️ Receipt for ${capitalizedPeriod} already sent. Skipping.`);
-        //     return response.status(200).json({ status: 'Skipped', message: 'Receipt already sent for this period.' });
-        // }
+        if (alreadySent) {
+            console.log(`⏭️ Receipt for ${capitalizedPeriod} already sent. Skipping.`);
+            return response.status(200).json({ status: 'Skipped', message: 'Receipt already sent for this period.' });
+        }
 
         // 4. Generate PDF
         const pdfBuffer = await generateReceiptBuffer({
@@ -80,7 +86,12 @@ export default async function handler(request, response) {
         db.receipts.unshift(newReceipt);
         await saveDb(db);
 
-        return response.status(200).json({ success: true, receipt: newReceipt });
+        return response.status(200).json({
+            success: true,
+            message: 'Cron executed successfully',
+            receipt: newReceipt,
+            debug: { settingsLoaded: true, emailSentTo: settings.email }
+        });
 
     } catch (error) {
         console.error(error);
