@@ -127,7 +127,7 @@ export default function ManualSend({ onReceiptSent }) {
                             name="period"
                             value={formData.period}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-2 rounded-xl border-warm-border bg-warm-surface focus:ring-2 focus:ring-warm-primary transition-all"
+                            className="w-full px-4 py-2 rounded-xl border-2 border-indigo-200 bg-white focus:ring-2 focus:ring-warm-primary transition-all"
                         />
                     </div>
 
@@ -141,7 +141,7 @@ export default function ManualSend({ onReceiptSent }) {
                             name="tenantName"
                             value={formData.tenantName}
                             onChange={handleInputChange}
-                            className={`w-full px-4 py-2 rounded-xl border-warm-border bg-warm-surface focus:ring-2 focus:ring-warm-primary transition-all ${errors.tenantName ? 'border-red-300 ring-2 ring-red-100' : ''}`}
+                            className={`w-full px-4 py-2 rounded-xl border-2 border-indigo-200 bg-white focus:ring-2 focus:ring-warm-primary transition-all ${errors.tenantName ? 'border-red-300 ring-2 ring-red-100' : ''}`}
                         />
                         {errors.tenantName && <p className="text-xs text-red-500 mt-1">{errors.tenantName}</p>}
                     </div>
@@ -155,7 +155,7 @@ export default function ManualSend({ onReceiptSent }) {
                             name="amount"
                             value={formData.amount}
                             onChange={handleInputChange}
-                            className={`w-full px-4 py-2 rounded-xl border-warm-border bg-warm-surface focus:ring-2 focus:ring-warm-primary transition-all ${errors.amount ? 'border-red-300 ring-2 ring-red-100' : ''}`}
+                            className={`w-full px-4 py-2 rounded-xl border-2 border-indigo-200 bg-white focus:ring-2 focus:ring-warm-primary transition-all ${errors.amount ? 'border-red-300 ring-2 ring-red-100' : ''}`}
                         />
                         {errors.amount && <p className="text-xs text-red-500 mt-1">{errors.amount}</p>}
                     </div>
@@ -170,7 +170,7 @@ export default function ManualSend({ onReceiptSent }) {
                             name="address"
                             value={formData.address}
                             onChange={handleInputChange}
-                            className={`w-full px-4 py-2 rounded-xl border-warm-border bg-warm-surface focus:ring-2 focus:ring-warm-primary transition-all ${errors.address ? 'border-red-300 ring-2 ring-red-100' : ''}`}
+                            className={`w-full px-4 py-2 rounded-xl border-2 border-indigo-200 bg-white focus:ring-2 focus:ring-warm-primary transition-all ${errors.address ? 'border-red-300 ring-2 ring-red-100' : ''}`}
                         />
                         {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
                     </div>
@@ -185,7 +185,7 @@ export default function ManualSend({ onReceiptSent }) {
                             name="email"
                             value={formData.email}
                             onChange={handleInputChange}
-                            className={`w-full px-4 py-2 rounded-xl border-warm-border bg-warm-surface focus:ring-2 focus:ring-warm-primary transition-all ${errors.email ? 'border-red-300 ring-2 ring-red-100' : ''}`}
+                            className={`w-full px-4 py-2 rounded-xl border-2 border-indigo-200 bg-white focus:ring-2 focus:ring-warm-primary transition-all ${errors.email ? 'border-red-300 ring-2 ring-red-100' : ''}`}
                         />
                         {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
                     </div>
