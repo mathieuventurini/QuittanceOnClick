@@ -10,6 +10,7 @@ function App() {
   const [history, setHistory] = useState([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'history'
 
   const checkAuth = async () => {
     try {
@@ -48,7 +49,7 @@ function App() {
     return <Login onLogin={() => setIsAuthenticated(true)} />;
   }
 
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'history'
+
 
 
 
