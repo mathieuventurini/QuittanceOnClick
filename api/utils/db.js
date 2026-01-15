@@ -7,14 +7,29 @@ const DEFAULT_DB = {
 };
 
 export const getDb = async () => {
-    // In Vercel KV, we'll store everything under a 'db' key or separate keys.
-    // For simplicity and migration, let's treat 'db' as the big JSON object.
-    const data = await kv.get('db');
-    return data || DEFAULT_DB;
+    // Safety check: Return default if KV is not configured (prevents crash)
+    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+        console.warn('⚠️ Vercel KV is not configured. Falling back to default in-memory DB (data will be lost on restart).');
+        return DEFAULT_DB;
+    }
+
+    try {
+        const data = await kv.get('db');
+        return data || DEFAULT_DB;
+    } catch (error) {
+        console.error('❌ Failed to connect to Vercel KV:', error);
+        // Fallback to avoid 500 error, though persistence will fail
+        return DEFAULT_DB;
+    }
 };
 
 export const saveDb = async (data) => {
-    await kv.set('db', data);
+    if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) return;
+    try {
+        await kv.set('db', data);
+    } catch (error) {
+        console.error('❌ Failed to save to Vercel KV:', error);
+    }
 };
 
 export const getSettings = () => {
