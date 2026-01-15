@@ -1,22 +1,28 @@
 import { getDb, saveDb } from '../utils/db.js';
 
-export default async function handler(req, res) {
+import { isAuthenticated } from '../utils/auth.js';
+
+export default async function handler(request, response) {
+    if (!isAuthenticated(request)) {
+        return response.status(401).json({ error: 'Unauthorized' });
+    }
+
     try {
         const db = await getDb();
 
-        if (req.method === 'GET') {
-            return res.status(200).json(db.automationStatus || { skipNext: false });
+        if (request.method === 'GET') {
+            return response.status(200).json(db.automationStatus || { skipNext: false });
         }
 
-        if (req.method === 'POST') {
-            const { skipNext } = req.body;
+        if (request.method === 'POST') {
+            const { skipNext } = request.body;
             db.automationStatus = { skipNext };
             await saveDb(db);
-            return res.status(200).json(db.automationStatus);
+            return response.status(200).json(db.automationStatus);
         }
 
-        res.status(405).json({ error: 'Method not allowed' });
+        response.status(405).json({ error: 'Method not allowed' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        response.status(500).json({ error: err.message });
     }
 }
