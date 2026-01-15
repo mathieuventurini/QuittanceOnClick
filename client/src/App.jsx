@@ -1,23 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import ReceiptForm from './components/ReceiptForm';
+import Login from './components/Login';
 
 function App() {
   const [history, setHistory] = useState([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading
 
-  const fetchHistory = () => {
-    fetch('/api/history')
-      .then(res => res.json())
-      .then(data => setHistory(data))
-      .catch(err => console.error('Failed to fetch history', err));
+  const checkAuth = async () => {
+    try {
+      const res = await fetch('/api/auth/me');
+      const data = await res.json();
+      setIsAuthenticated(data.authenticated);
+      if (data.authenticated) {
+        fetchHistory();
+      }
+    } catch (err) {
+      setIsAuthenticated(false);
+    }
   };
 
   useEffect(() => {
-    fetchHistory();
+    checkAuth();
   }, []);
 
+  const fetchHistory = async () => {
+    try {
+      const response = await fetch('/api/history');
+      if (response.ok) {
+        const data = await response.json();
+        setHistory(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch history:', error);
+    }
+  };
+
+  if (isAuthenticated === null) {
+    return <div className="min-h-screen bg-warm-bg flex items-center justify-center text-warm-text">Chargement...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Login onLogin={() => setIsAuthenticated(true)} />;
+  }
+
   return (
-    <div className="min-h-screen bg-warm-bg text-warm-text font-sans selection:bg-warm-primary selection:text-white">
+    <div className="min-h-screen bg-warm-bg text-gray-900 font-sans antialiased selection:bg-indigo-100 selection:text-indigo-900">
       {/* Header Section */}
       <header className="bg-gradient-to-r from-warm-primary to-indigo-600 sticky top-0 z-20 shadow-lg shadow-indigo-500/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
