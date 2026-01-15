@@ -12,6 +12,10 @@ export default async function handler(req, res) {
     try {
         const { email, tenantName, address, amount, period } = req.body;
 
+        console.log('🔑 Clé API:', process.env.RESEND_API_KEY);
+        console.log('🔑 Longueur:', process.env.RESEND_API_KEY?.length);
+        console.log('🔑 Commence par re_ ?', process.env.RESEND_API_KEY?.startsWith('re_'));
+
         if (!process.env.RESEND_API_KEY) {
             throw new Error('RESEND_API_KEY is missing in environment variables');
         }
