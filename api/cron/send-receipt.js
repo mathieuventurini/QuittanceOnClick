@@ -41,10 +41,10 @@ export default async function handler(request, response) {
         );
 
         // TEMPORARY: Disabled for testing loop
-        if (alreadySent) {
-            console.log(`⏭️ Receipt for ${capitalizedPeriod} already sent. Skipping.`);
-            return response.status(200).json({ status: 'Skipped', message: 'Receipt already sent for this period.' });
-        }
+        // if (alreadySent) {
+        //     console.log(`⏭️ Receipt for ${capitalizedPeriod} already sent. Skipping.`);
+        //     return response.status(200).json({ status: 'Skipped', message: 'Receipt already sent for this period.' });
+        // }
 
         // 4. Generate PDF
         const pdfBuffer = await generateReceiptBuffer({
