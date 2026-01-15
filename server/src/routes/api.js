@@ -4,6 +4,37 @@ const { generateReceipt } = require('../services/pdfService');
 const { sendReceiptEmail } = require('../services/emailService');
 const fs = require('fs');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const cookie = require('cookie');
+
+const SECRET = process.env.JWT_SECRET || 'dev-secret';
+const PASSWORD = process.env.ADMIN_PASSWORD;
+
+// Middleware Auth
+const isAuthenticated = (req, res, next) => {
+    // Check header or cookie
+    const token = req.cookies?.token || req.headers?.authorization?.split(' ')[1];
+
+    if (!token) {
+        // Check "cookie" header directly if cookie parser not used
+        const cookies = cookie.parse(req.headers.cookie || '');
+        if (!cookies.token) return res.status(401).json({ error: 'Unauthorized' });
+
+        try {
+            jwt.verify(cookies.token, SECRET);
+            return next();
+        } catch (err) {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
+    }
+
+    try {
+        jwt.verify(token, SECRET);
+        next();
+    } catch (err) {
+        res.status(401).json({ error: 'Unauthorized' });
+    }
+};
 
 const DB_PATH = path.join(__dirname, '../db/db.json');
 
@@ -11,8 +42,39 @@ const DB_PATH = path.join(__dirname, '../db/db.json');
 const getDb = () => JSON.parse(fs.readFileSync(DB_PATH));
 const saveDb = (data) => fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 
+// POST /api/auth/login
+router.post('/auth/login', (req, res) => {
+    const { password } = req.body;
+    console.log('Login attempt with:', password, 'Expected:', PASSWORD);
+
+    if (password === PASSWORD) {
+        const token = jwt.sign({ role: 'admin' }, SECRET, { expiresIn: '7d' });
+        res.setHeader('Set-Cookie', cookie.serialize('token', token, {
+            httpOnly: true,
+            secure: false, // Local dev
+            maxAge: 60 * 60 * 24 * 7,
+            sameSite: 'strict',
+            path: '/'
+        }));
+        return res.json({ success: true });
+    }
+    res.status(401).json({ error: 'Invalid password' });
+});
+
+// GET /api/auth/me
+router.get('/auth/me', (req, res) => {
+    const cookies = cookie.parse(req.headers.cookie || '');
+    try {
+        if (cookies.token) {
+            jwt.verify(cookies.token, SECRET);
+            return res.json({ authenticated: true });
+        }
+    } catch (e) { }
+    res.json({ authenticated: false });
+});
+
 // GET /api/history
-router.get('/history', (req, res) => {
+router.get('/history', isAuthenticated, (req, res) => {
     try {
         const db = getDb();
         res.json(db.receipts || []);
@@ -22,7 +84,7 @@ router.get('/history', (req, res) => {
 });
 
 // POST /api/receipts/preview
-router.post('/receipts/preview', async (req, res) => {
+router.post('/receipts/preview', isAuthenticated, async (req, res) => {
     try {
         const data = req.body; // { tenantName, address, amount, period }
         const pdfBuffer = await generateReceipt(data);
@@ -37,7 +99,7 @@ router.post('/receipts/preview', async (req, res) => {
 });
 
 // POST /api/receipts/send
-router.post('/receipts/send', async (req, res) => {
+router.post('/receipts/send', isAuthenticated, async (req, res) => {
     try {
         const { tenantName, email, address, amount, period } = req.body;
 
@@ -76,7 +138,7 @@ router.post('/receipts/send', async (req, res) => {
 });
 
 // GET /api/settings (for pre-filling form)
-router.get('/settings', (req, res) => {
+router.get('/settings', isAuthenticated, (req, res) => {
     try {
         const db = getDb();
         res.json(db.settings || {});
@@ -86,7 +148,7 @@ router.get('/settings', (req, res) => {
 });
 
 // GET /api/automation/status
-router.get('/automation/status', (req, res) => {
+router.get('/automation/status', isAuthenticated, (req, res) => {
     try {
         const db = getDb();
         res.json(db.automationStatus || { skipNext: false });
@@ -96,7 +158,7 @@ router.get('/automation/status', (req, res) => {
 });
 
 // POST /api/automation/status
-router.post('/automation/status', (req, res) => {
+router.post('/automation/status', isAuthenticated, (req, res) => {
     try {
         const { skipNext } = req.body;
         const db = getDb();
