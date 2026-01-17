@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     const report = {
         _NOTE: "Do not share valid keys screenshots publicly. Only report MISSING ones.",
         ENV_VARS: {
-            RESEND_API_KEY: check('RESEND_API_KEY'),
+            // RESEND_API_KEY: check('RESEND_API_KEY'), // Removed
             TENANT_EMAIL: check('TENANT_EMAIL'),
             TENANT_NAME: check('TENANT_NAME'),
             PROPERTY_ADDRESS: check('PROPERTY_ADDRESS'),
