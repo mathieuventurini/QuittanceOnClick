@@ -15,7 +15,8 @@ export default async function handler(request, response) {
         // 0. Atomic Lock (Prevent Double-Execution)
         // Only works if Vercel KV is configured
         if (kv) {
-            const periodKey = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+            // Reverted to Full Date (Daily) for testing
+            const periodKey = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
             const lockKey = `lock:cron:${periodKey.replace(/\s/g, '_')}`;
             try {
                 // Try to acquire lock for 5 minutes
@@ -37,20 +38,11 @@ export default async function handler(request, response) {
             return response.status(200).json({ status: 'Skipped', message: 'Automation was skipped by user.' });
         }
 
-        // 2. Validate Settings
-        if (!settings.email || !settings.tenantName) {
-            return response.status(500).json({
-                error: 'Missing environment variables for tenant settings.',
-                debug: {
-                    email: settings.email ? 'Set' : 'Missing',
-                    tenantName: settings.tenantName ? 'Set' : 'Missing'
-                }
-            });
-        }
+        // ...
 
         // 3. Check for duplicates (Anti-Double-Send)
-        // Fixed: Use Month + Year only (one receipt per month)
-        const period = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        // Reverted: Use Day + Month + Year (Daily receipt)
+        const period = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
         const capitalizedPeriod = period.charAt(0).toUpperCase() + period.slice(1);
 
         // Safety check for existing receipts array
