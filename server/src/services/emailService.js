@@ -1,11 +1,18 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-let resend;
-if (process.env.RESEND_API_KEY) {
-    resend = new Resend(process.env.RESEND_API_KEY);
+let transporter;
+
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    });
 } else {
-    console.log('⚠️ RESEND_API_KEY is missing. Email service will run in MOCK mode.');
+    console.log('⚠️ EMAIL_USER or EMAIL_PASS missing. Email service will run in MOCK mode.');
 }
 
 /**
@@ -15,16 +22,17 @@ if (process.env.RESEND_API_KEY) {
  * @param {Buffer} pdfBuffer - The PDF file
  */
 const sendReceiptEmail = async (to, data, pdfBuffer) => {
-    if (!resend) {
-        console.log('⚠️ Mocking email send (No API Key).');
+    if (!transporter) {
+        console.log('⚠️ Mocking email send (No Credentials).');
         console.log(`To: ${to}, Subject: Quittance ${data.period}`);
         return { success: true, id: 'mock-id-' + Date.now() };
     }
 
     try {
-        const { data: emailData, error } = await resend.emails.send({
-            from: 'Quittance Express <onboarding@resend.dev>', // Update with your domain if verified
-            to: [to],
+        console.log(`📧 Sending (via Gmail) to ${to}...`);
+        const info = await transporter.sendMail({
+            from: `"Quittance Express" <${process.env.EMAIL_USER}>`,
+            to: to,
             subject: `Quittance de loyer - ${data.period}`,
             html: `
         <p>Bonjour ${data.tenantName},</p>
@@ -39,14 +47,10 @@ const sendReceiptEmail = async (to, data, pdfBuffer) => {
             ],
         });
 
-        if (error) {
-            console.error('Resend Error:', error);
-            throw error;
-        }
-
-        return { success: true, id: emailData.id };
+        console.log('✅ Email sent:', info.messageId);
+        return { success: true, id: info.messageId };
     } catch (error) {
-        console.error('Email Send Failed:', error);
+        console.error('❌ Email Send Failed:', error);
         throw error;
     }
 };

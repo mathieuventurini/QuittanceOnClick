@@ -1,9 +1,16 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import { getDb, saveDb } from '../utils/db.js';
 import { generateReceiptBuffer } from '../utils/pdf.js';
-
-
 import { isAuthenticated } from '../utils/auth.js';
+
+// Configure Nodemailer for Gmail
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 export default async function handler(request, response) {
     if (!isAuthenticated(request)) {
@@ -17,14 +24,11 @@ export default async function handler(request, response) {
     try {
         const { email, tenantName, address, amount, period } = request.body;
 
-        console.log('🔑 Clé API:', process.env.RESEND_API_KEY);
-        console.log('🔑 Longueur:', process.env.RESEND_API_KEY?.length);
-        console.log('🔑 Commence par re_ ?', process.env.RESEND_API_KEY?.startsWith('re_'));
-
-        if (!process.env.RESEND_API_KEY) {
-            throw new Error('RESEND_API_KEY is missing in environment variables');
+        // Validation
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            console.error('❌ Missing Gmail credentials');
+            throw new Error('Server configured incorrectly: Missing email credentials');
         }
-        const resend = new Resend(process.env.RESEND_API_KEY);
 
         // 1. Generate PDF
         const pdfBuffer = await generateReceiptBuffer({
@@ -35,41 +39,48 @@ export default async function handler(request, response) {
             amount
         });
 
-        // 2. Send Email
-        const { data: emailData, error } = await resend.emails.send({
-            from: 'Quittance Express <onboarding@resend.dev>', // Update if domain verified
-            to: [email],
-            subject: `Quittance de loyer - ${period}`,
-            html: `
-        <p>Bonjour ${tenantName},</p>
-        <p>Veuillez trouver ci-joint votre quittance de loyer pour la période <strong>${period}</strong>.</p>
-        <p>Cordialement,</p>
-      `,
-            attachments: [{
-                filename: `quittance-${period.replace(/\s/g, '_')}.pdf`,
-                content: pdfBuffer,
-            }],
-        });
+        // 2. Send Email via Gmail SMTP
+        console.log(`📧 Sending receipt for ${period} to ${email}...`);
 
-        if (error) throw error;
+        try {
+            const info = await transporter.sendMail({
+                from: `"Quittance Express" <${process.env.EMAIL_USER}>`,
+                to: email,
+                subject: `Quittance de loyer - ${period}`,
+                html: `
+            <p>Bonjour ${tenantName},</p>
+            <p>Veuillez trouver ci-joint votre quittance de loyer pour la période <strong>${period}</strong>.</p>
+            <p>Cordialement,</p>
+          `,
+                attachments: [{
+                    filename: `quittance-${period.replace(/\s/g, '_')}.pdf`,
+                    content: pdfBuffer,
+                }],
+            });
+            console.log('✅ Email sent:', info.messageId);
 
-        // 3. Update History
-        const db = await getDb();
-        const newReceipt = {
-            id: Date.now().toString(),
-            date: new Date().toISOString(),
-            tenantName,
-            period,
-            amount,
-            status: 'Sent',
-            emailId: emailData.id
-        };
+            // 3. Update History
+            const db = await getDb();
+            const newReceipt = {
+                id: Date.now().toString(),
+                date: new Date().toISOString(),
+                tenantName,
+                period,
+                amount,
+                status: 'Sent',
+                emailId: info.messageId
+            };
 
-        if (!db.receipts) db.receipts = [];
-        db.receipts.unshift(newReceipt);
-        await saveDb(db);
+            if (!db.receipts) db.receipts = [];
+            db.receipts.unshift(newReceipt);
+            await saveDb(db);
 
-        response.status(200).json({ success: true, receipt: newReceipt });
+            response.status(200).json({ success: true, receipt: newReceipt });
+
+        } catch (emailError) {
+            console.error('❌ Gmail Send Error:', emailError);
+            throw emailError;
+        }
 
     } catch (err) {
         console.error(err);

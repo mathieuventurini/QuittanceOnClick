@@ -67,7 +67,7 @@ export default async function handler(request, response) {
 
         // 5. Send Email
         const { data: emailData, error } = await resend.emails.send({
-            from: 'Quittance Express <onboarding@resend.dev>', // Should use verified domain
+            from: 'Quittance Express <noreply@monthly.receipt.com>',
             to: [settings.email],
             subject: `Quittance de loyer - ${capitalizedPeriod}`,
             html: `
