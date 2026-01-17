@@ -1,13 +1,33 @@
 import { Resend } from 'resend';
-import { getDb, saveDb, getSettings } from '../utils/db.js';
+import { getDb, saveDb, getSettings, kv } from '../utils/db.js';
 import { generateReceiptBuffer } from '../utils/pdf.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(request, response) {
+    console.log('🔔 Cron Job Initiated: /api/cron/send-receipt');
+    console.log('HEADERS:', JSON.stringify(request.headers, null, 2));
+
     try {
         const db = await getDb();
         const settings = getSettings();
+
+        // 0. Atomic Lock (Prevent Double-Execution)
+        // Only works if Vercel KV is configured
+        if (kv) {
+            const periodKey = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+            const lockKey = `lock:cron:${periodKey.replace(/\s/g, '_')}`;
+            try {
+                // Try to acquire lock for 5 minutes
+                const acquired = await kv.set(lockKey, 'locked', { nx: true, ex: 300 });
+                if (!acquired) {
+                    console.log('🔒 Lock exists. Another function is processing this period.');
+                    return response.status(200).json({ status: 'Locked', message: 'Concurrent execution detected.' });
+                }
+            } catch (e) {
+                console.warn('⚠️ KV Locking failed, proceeding without lock:', e);
+            }
+        }
 
         // 1. Check if automation is skipped
         if (db.automationStatus && db.automationStatus.skipNext) {
@@ -29,6 +49,7 @@ export default async function handler(request, response) {
         }
 
         // 3. Check for duplicates (Anti-Double-Send)
+        // Fixed: Use Month + Year only (one receipt per month)
         const period = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
         const capitalizedPeriod = period.charAt(0).toUpperCase() + period.slice(1);
 
@@ -40,11 +61,10 @@ export default async function handler(request, response) {
             r.status.includes('Sent')
         );
 
-        // TEMPORARY: Disabled for testing loop
-        // if (alreadySent) {
-        //     console.log(`⏭️ Receipt for ${capitalizedPeriod} already sent. Skipping.`);
-        //     return response.status(200).json({ status: 'Skipped', message: 'Receipt already sent for this period.' });
-        // }
+        if (alreadySent) {
+            console.log(`⏭️ Receipt for ${capitalizedPeriod} already sent. Skipping.`);
+            return response.status(200).json({ status: 'Skipped', message: 'Receipt already sent for this period.' });
+        }
 
         // 4. Generate PDF
         const pdfBuffer = await generateReceiptBuffer({

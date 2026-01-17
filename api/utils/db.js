@@ -1,4 +1,5 @@
 import { kv } from '@vercel/kv';
+export { kv }; // Export kv for direct usage (e.g., locking)
 import Redis from 'ioredis';
 
 // Default data structure
