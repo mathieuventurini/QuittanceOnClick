@@ -74,7 +74,7 @@ function App() {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="flex bg-black/10 p-1 rounded-full backdrop-blur-sm">
+            <div className="flex bg-black/10 p-1 rounded-full backdrop-blur-sm overflow-x-auto">
               <TabButton id="dashboard" label="Tableau de bord" icon="📊" activeTab={activeTab} setActiveTab={setActiveTab} />
               <TabButton id="history" label="Historique" icon="📜" count={history.length} activeTab={activeTab} setActiveTab={setActiveTab} />
             </div>
