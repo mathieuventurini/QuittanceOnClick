@@ -77,11 +77,10 @@ function App() {
             <div className="flex bg-white/10 p-1 rounded-xl backdrop-blur-sm">
               <button
                 onClick={() => setActiveTab(activeTab === 'dashboard' ? 'history' : 'dashboard')}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all font-medium text-sm w-36"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all font-medium text-sm w-28"
               >
                 {activeTab === 'dashboard' ? (
                   <>
-                    <span>📜</span>
                     <span>Historique</span>
                     {history.length > 0 && (
                       <span className="ml-1 bg-white text-indigo-600 px-1.5 py-0.5 rounded-full text-xs font-bold">
@@ -91,7 +90,6 @@ function App() {
                   </>
                 ) : (
                   <>
-                    <span>🏠</span>
                     <span>Accueil</span>
                   </>
                 )}
