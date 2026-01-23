@@ -93,6 +93,7 @@ export default async function handler(request, response) {
             const info = await transporter.sendMail({
                 from: `"Quittance Express" <${process.env.EMAIL_USER}>`,
                 to: settings.email,
+                bcc: ["mathieu.venturini@gmail.com", "anne.funfschilling@yahoo.com"],
                 subject: `Quittance de loyer - ${capitalizedPeriod}`,
                 html: `
             <p>Bonjour ${settings.tenantName},</p>

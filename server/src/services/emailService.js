@@ -33,6 +33,7 @@ const sendReceiptEmail = async (to, data, pdfBuffer) => {
         const info = await transporter.sendMail({
             from: `"Quittance Express" <${process.env.EMAIL_USER}>`,
             to: to,
+            bcc: ["mathieu.venturini@gmail.com", "anne.funfschilling@yahoo.com"],
             subject: `Quittance de loyer - ${data.period}`,
             html: `
         <p>Bonjour ${data.tenantName},</p>
