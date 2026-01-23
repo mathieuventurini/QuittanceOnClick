@@ -83,7 +83,7 @@ function App() {
                   <>
                     <span>Historique</span>
                     {history.length > 0 && (
-                      <span className="ml-1 bg-white text-indigo-600 px-1.5 py-0.5 rounded-full text-xs font-bold">
+                      <span className="ml-[-3px] bg-white text-indigo-600 px-1.5 py-0.5 rounded-full text-xs font-bold">
                         {history.length}
                       </span>
                     )}
