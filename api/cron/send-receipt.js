@@ -89,6 +89,10 @@ export default async function handler(request, response) {
         // 5. Send Email via Gmail SMTP
         console.log(`📧 Sending email via Gmail to ${settings.email}...`);
 
+        // Month name for email body
+        const monthName = new Date().toLocaleDateString('fr-FR', { month: 'long' });
+        const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
         try {
             const info = await transporter.sendMail({
                 from: `"Quittance Express" <${process.env.EMAIL_USER}>`,
@@ -96,8 +100,8 @@ export default async function handler(request, response) {
                 bcc: ["mathieu.venturini@gmail.com", "anne.funfschilling@yahoo.com"],
                 subject: `Quittance de loyer - ${capitalizedPeriod}`,
                 html: `
-            <p>Bonjour ${settings.tenantName},</p>
-            <p>Veuillez trouver ci-joint votre quittance de loyer pour la période <strong>${capitalizedPeriod}</strong>.</p>
+            <p>Bonjour Madame Chartrain,</p>
+            <p>Veuillez trouver ci-joint votre quittance de loyer pour le mois de <strong>${capitalizedMonth}</strong>.</p>
             <p>Cordialement,</p>
           `,
                 attachments: [{

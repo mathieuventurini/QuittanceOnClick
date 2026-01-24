@@ -30,14 +30,16 @@ const sendReceiptEmail = async (to, data, pdfBuffer) => {
 
     try {
         console.log(`📧 Sending (via Gmail) to ${to}...`);
+        const month = data.period.split(' ')[0];
+
         const info = await transporter.sendMail({
             from: `"Quittance Express" <${process.env.EMAIL_USER}>`,
             to: to,
             bcc: ["mathieu.venturini@gmail.com", "anne.funfschilling@yahoo.com"],
             subject: `Quittance de loyer - ${data.period}`,
             html: `
-        <p>Bonjour ${data.tenantName},</p>
-        <p>Veuillez trouver ci-joint votre quittance de loyer pour la période <strong>${data.period}</strong>.</p>
+        <p>Bonjour Madame Chartrain,</p>
+        <p>Veuillez trouver ci-joint votre quittance de loyer pour le mois de <strong>${month}</strong>.</p>
         <p>Cordialement,<br>Mathieu Venturini</p>
       `,
             attachments: [

@@ -89,8 +89,7 @@ export const generateReceiptBuffer = (data) => {
             amountInWords = '...'; // Placeholder if dynamic
         }
 
-        doc.font('Helvetica').text(`Somme totale reçue : ${amountInWords}.`);
-        doc.moveDown(2);
+
 
         // Disclaimer
         doc.fontSize(10).text('Cette quittance annule tout reçu relatif à la période susmentionnée et ne peut servir de quittance pour les termes précédents.', { align: 'left' });
