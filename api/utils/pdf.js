@@ -91,8 +91,10 @@ export const generateReceiptBuffer = (data) => {
 
 
 
+        doc.moveDown(2);
+
         // Disclaimer
-        doc.fontSize(10).text('Cette quittance annule tout reçu relatif à la période susmentionnée et ne peut servir de quittance pour les termes précédents.', { align: 'left' });
+        doc.font('Helvetica-Oblique').fontSize(9).text('Cette quittance annule tout reçu relatif à la période susmentionnée et ne peut servir de quittance pour les termes précédents.', { align: 'left' });
         doc.moveDown(2);
 
         // Footer / Signature
