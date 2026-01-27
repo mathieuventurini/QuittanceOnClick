@@ -80,10 +80,15 @@ export default async function handler(request, response) {
         }
 
         // 4. Generate PDF
+        // Pass clear Month/Year string to avoid parsing ambiguity in pdf.js
+        const monthYearForPdf = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        const capitalizedMonthYear = monthYearForPdf.charAt(0).toUpperCase() + monthYearForPdf.slice(1);
+
         const pdfBuffer = await generateReceiptBuffer({
             ...settings,
             date: new Date().toLocaleDateString('fr-FR'),
-            period: capitalizedPeriod
+            // We pass "Janvier 2026" instead of "27 janvier 2026" to ensure pdf.js logic works perfectly
+            period: capitalizedMonthYear
         });
 
         // 5. Send Email via Gmail SMTP
@@ -100,7 +105,7 @@ export default async function handler(request, response) {
                 bcc: ["mathieu.venturini@gmail.com", "anne.funfschilling@yahoo.com"],
                 subject: `Quittance de loyer - ${capitalizedPeriod}`,
                 html: `
-            <p>Bonjour Madame Chartrain,</p>
+            <p>Bonjour Madame,</p>
             <p>Veuillez trouver ci-joint votre quittance de loyer pour le mois de <strong>${capitalizedMonth}</strong>.</p>
             <p>Cordialement,</p>
           `,

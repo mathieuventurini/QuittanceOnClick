@@ -26,31 +26,51 @@ export const generateReceiptBuffer = (data) => {
         const currentDate = new Date();
         const formattedDate = currentDate.toLocaleDateString('fr-FR');
 
-        // Compute period dates (assuming data.period is "Janvier 2026" or similar)
-        // We need explicit dates like "01/01/2026"
-        const periodStr = data.period || 'Janvier 2026'; // e.g. "Janvier 2026"
-        // Try to parse month/year from period string
-        const periodParts = periodStr.split(' '); // ["Janvier", "2026"]
-        let monthName = periodParts[0] || 'Janvier';
-        let year = periodParts[1] || '2026';
+        // Parse period string (Expected format: "Janvier 2026" or "27 Janvier 2026")
+        // We want to extract the Month and Year.
+        // If data.period is "27 janvier 2026", split by space.
+        let periodStr = data.period || 'Janvier 2026';
+        let periodParts = periodStr.split(' ').filter(p => p.trim() !== '');
 
-        // Mapping French months to index
-        const months = {
-            'Janvier': '01', 'Février': '02', 'Mars': '03', 'Avril': '04', 'Mai': '05', 'Juin': '06',
-            'Juillet': '07', 'Août': '08', 'Septembre': '09', 'Octobre': '10', 'Novembre': '11', 'Décembre': '12'
+        // Dictionary for Month Name -> Number
+        const monthsMap = {
+            'janvier': '01', 'février': '02', 'mars': '03', 'avril': '04', 'mai': '05', 'juin': '06',
+            'juillet': '07', 'août': '08', 'septembre': '09', 'octobre': '10', 'novembre': '11', 'décembre': '12'
         };
-        const monthNum = months[monthName] || '01';
-        const lastDayMap = {
-            '01': 31, '02': 28, '03': 31, '04': 30, '05': 31, '06': 30,
-            '07': 31, '08': 31, '09': 30, '10': 31, '11': 30, '12': 31
-        };
-        // Leap year check simplified
-        if (monthNum === '02' && (year % 4 === 0)) lastDayMap['02'] = 29;
-        const lastDay = lastDayMap[monthNum];
+
+        // Heuristic: If 3 parts (Day, Month, Year), take index 1 and 2. If 2 parts, take 0 and 1.
+        let monthName = '';
+        let year = '';
+
+        if (periodParts.length >= 3) {
+            monthName = periodParts[1];
+            year = periodParts[2];
+        } else if (periodParts.length === 2) {
+            monthName = periodParts[0];
+            year = periodParts[1];
+        } else {
+            // Fallback
+            monthName = 'Janvier';
+            year = '2026';
+        }
+
+        // Normalize month name (lowercase for lookup, keep original for display if needed but we usually capitalize it)
+        const monthKey = monthName.toLowerCase();
+        const monthNum = monthsMap[monthKey] || '01';
+
+        // --- Dynamic Last Day Calculation ---
+        // JS Date: new Date(year, monthIndex, 0) returns the last day of the PREVIOUS month. 
+        // So passed monthNum is 1-based string. 
+        // Example: Jan=1. new Date(2026, 1, 0) -> Feb 0th -> Jan 31st. Correct.
+        const lastDayObj = new Date(parseInt(year), parseInt(monthNum), 0);
+        const lastDay = lastDayObj.getDate();
 
         const periodStart = `01/${monthNum}/${year}`;
         const periodEnd = `${lastDay}/${monthNum}/${year}`;
-        const periodLong = `du 1er au ${lastDay} ${monthName.toLowerCase()} ${year}`;
+
+        // Capitalize month for text
+        const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1).toLowerCase();
+        const periodLong = `du 1er au ${lastDay} ${capitalizedMonth.toLowerCase()} ${year}`;
 
         // --- PDF Content ---
 
@@ -71,16 +91,20 @@ export const generateReceiptBuffer = (data) => {
         doc.moveDown(2);
 
         // Body Text
-        const bodyText = `Je soussigné(e) ${ownerName}, propriétaire du logement situé au ${address.replace('\n', ', ')}, déclare avoir reçu de la part de ${tenantName} la somme de ${parseFloat(fullAmount).toFixed(2).replace('.', ',')} € au titre du loyer et des charges pour la période d’occupation ${periodLong}.`;
+        // CORRECTION: "Je soussignée" instead of "Je soussigné(e)"
+        const bodyText = `Je soussignée ${ownerName}, propriétaire du logement situé au ${address.replace('\n', ', ')}, déclare avoir reçu de la part de ${tenantName} la somme de ${parseFloat(fullAmount).toFixed(2).replace('.', ',')} € au titre du loyer et des charges pour la période d’occupation ${periodLong}.`;
 
         doc.text(bodyText, { align: 'justify', lineGap: 4 });
         doc.moveDown(2);
 
         // Details
         doc.font('Helvetica-Bold').text('Détail du règlement :');
+        doc.moveDown(0.5); // Add a little space before items
         doc.font('Helvetica');
-        doc.text(`Loyer net hors charges : ${parseFloat(rentAmount).toFixed(2).replace('.', ',')} €`);
-        doc.text(`Provisions pour charges : ${parseFloat(chargesAmount).toFixed(2).replace('.', ',')} €`);
+
+        // Improved spacing using lineGap or moveDown
+        doc.text(`Loyer net hors charges : ${parseFloat(rentAmount).toFixed(2).replace('.', ',')} €`, { lineGap: 5 });
+        doc.text(`Provisions pour charges : ${parseFloat(chargesAmount).toFixed(2).replace('.', ',')} €`, { lineGap: 5 });
         doc.font('Helvetica-Bold').text(`Montant total reçu : ${parseFloat(fullAmount).toFixed(2).replace('.', ',')} €`);
 
         // Amount in words (simplified/hardcoded for 715)
@@ -88,8 +112,6 @@ export const generateReceiptBuffer = (data) => {
         if (parseFloat(fullAmount) !== 715) {
             amountInWords = '...'; // Placeholder if dynamic
         }
-
-
 
         doc.moveDown(2);
 
